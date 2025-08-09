@@ -1,0 +1,13 @@
+requests
+beautifulsoup4
+tqdm
+openai
+feedparser
+flask
+ddgs
+langchain
+langchain-openai
+mcp
+scholarly
+pypdf
+scholarly
