@@ -12,25 +12,27 @@
 from __future__ import annotations
 
 import json
-import sys
+import sys, os
 
 import openai
 
 from config_manager import load_api_config, get_config
+
 from tools.search_web import search_web
 from tools.text_from_url import text_from_url
 from tools.zotero_integration import save_papers_to_zotero, ZoteroIntegration
 from tools.search_arxiv import search_arxiv
 from tools.search_scholar import search_scholar_pdfs
+from tools.pdf_downloader import download_pdfs
+from tools.markdown_notes import write_markdown_note
+from tools.pdf_reader import read_pdf
+
 from langchain_openai import ChatOpenAI
 from langchain.tools import StructuredTool
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
-from tools.pdf_downloader import download_pdfs
-import os
-from tools.markdown_notes import write_markdown_note
-from tools.pdf_reader import read_pdf
+
 
 
 def run_with_langchain(query: str) -> None:
