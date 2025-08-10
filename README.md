@@ -1,169 +1,211 @@
-# 学术智能Agent
+# LLM智能Agent - 学术研究助手
 
-一个基于Python的命令行学术论文搜索和下载工具，支持智能关键词生成、自动PDF下载和Zotero集成。
+一个基于LangChain和DeepSeek的智能学术研究助手，集成了多种工具功能，支持网络搜索、学术论文检索、PDF处理、Zotero文献管理和笔记记录等功能。
 
-## 功能特性
+## 🚀 核心特性
 
-- 🔍 **智能搜索**：使用大语言模型将中文查询转换为英文关键词
-- 📚 **多平台支持**：arXiv、Google Scholar、Semantic Scholar、PubMed
-- 💾 **自动下载**：自动下载PDF文件到指定目录
-- 📖 **Zotero集成**：将论文信息保存到Zotero中，支持自定义文件夹
-- 🤖 **AI推荐**：基于用户兴趣推荐相关论文
-- 🚀 **自动化**：无需手动操作，全自动流程
+- **🤖 智能对话**：基于DeepSeek大语言模型的自然语言交互
+- **🔍 多源搜索**：支持DuckDuckGo网络搜索、Google Scholar、arXiv学术搜索
+- **📚 文献管理**：完整的Zotero集成，支持文件夹创建、论文添加、移动等操作
+- **📄 PDF处理**：PDF下载、文本提取、批量处理
+- **📝 笔记记录**：自动生成Markdown格式的研究笔记
+- **🌐 网页抓取**：智能提取网页内容并转换为结构化文本
+- **🔄 交互式对话**：支持多轮对话，保持上下文连续性
 
-## 安装依赖
+## 📋 功能模块
+
+### 搜索工具
+- **search_web**: 使用DuckDuckGo进行实时网络搜索
+- **search_scholar**: Google Scholar学术搜索，优先返回PDF链接
+- **search_arxiv**: arXiv预印本搜索，获取最新研究论文
+
+### 内容处理
+- **text_from_url**: 网页内容抓取和文本提取
+- **read_pdf**: 本地PDF文件文本提取
+- **pdf_downloader**: 批量PDF下载管理
+
+### 文献管理
+- **zotero**: 完整的Zotero集成工具
+  - 创建文件夹 (create_collection)
+  - 添加论文 (add_item)
+  - 移动论文 (move_item)
+  - 列出文件夹 (list_collections)
+
+### 笔记系统
+- **write_markdown_note**: 自动生成Markdown格式研究笔记
+
+## 🛠️ 安装配置
+
+### 1. 安装依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## API配置
+### 2. 配置文件设置
 
-### DeepSeek API（推荐，更便宜）
+创建 `.config` 文件并配置以下参数：
 
-1. 注册 [DeepSeek](https://platform.deepseek.com/) 账号
-2. 获取API Key
-3. 设置环境变量：
+```bash
+# DeepSeek API配置（推荐，价格更便宜）
+DEEPSEEK_API_KEY=your_deepseek_api_key
 
-```powershell
-$env:DEEPSEEK_API_KEY="你的DeepSeek_API_Key"
+# OpenAI API配置（备选）
+OPENAI_API_KEY=your_openai_api_key
+
+# Zotero集成配置
+ZOTERO_API_KEY=your_zotero_api_key
+ZOTERO_USER_ID=your_zotero_user_id
+
+# 网络代理配置
+PROXY_URL=http://127.0.0.1:33210
+
+# 默认配置
+DEFAULT_QUERY=搜索近五年强化学习的论文
+DEFAULT_DOWNLOAD_DIR=./downloads
+DEFAULT_ZOTERO_COLLECTION=学术智能Agent
 ```
 
-**价格优势**：
-- DeepSeek：约 $0.14/1M tokens
-- OpenAI GPT-3.5：约 $0.50/1M tokens
-- **节省约70%成本**
+### 3. API密钥获取
 
-**关于联网搜索**：
-- DeepSeek API本身不提供联网搜索功能
-- 本工具通过arXiv API直接获取论文信息
-- 论文数据来自arXiv官方RSS feed，实时更新
+#### DeepSeek API（推荐）
+1. 访问 [DeepSeek平台](https://platform.deepseek.com/)
+2. 注册账号并获取API Key
+3. 价格优势：约 $0.14/1M tokens（比OpenAI便宜70%）
 
-### OpenAI API（备选）
+#### Zotero API
+1. 登录 [Zotero](https://www.zotero.org/)
+2. 进入设置 → API → 创建新的API Key
+3. 在设置页面查看用户ID
 
-```powershell
-$env:OPENAI_API_KEY="你的OpenAI_API_Key"
+## 🎯 使用方法
+
+### 基本使用
+
+```bash
+python agent.py "帮我找一些关于强化学习的论文并保存到Zotero"
 ```
 
-### Zotero集成配置
+### 交互式对话
 
-1. 获取Zotero API Key：
-   - 登录 [Zotero](https://www.zotero.org/)
-   - 进入设置 → API → 创建新的API Key
-
-2. 获取用户ID：
-   - 在Zotero设置页面查看用户ID
-
-3. 设置环境变量：
-
-```powershell
-$env:ZOTERO_API_KEY="你的Zotero_API_Key"
-$env:ZOTERO_USER_ID="你的Zotero_用户ID"
-```
-
-## 使用方法
-
-### 自动测试模式
+程序启动后支持多轮对话：
 
 ```bash
 python agent.py
+# 输入初始查询
+# 继续指令(回车结束)：帮我下载这些论文的PDF
+# 继续指令(回车结束)：将这些内容整理成笔记
+# 继续指令(回车结束)：exit
 ```
 
-默认搜索"搜索近五年强化学习的论文"，支持选择保存方式：
-- **选项1**：下载PDF到本地文件夹
-- **选项2**：保存到Zotero（推荐）
-- **选项3**：两种方式都执行
+### 使用示例
 
-### 自定义搜索
-
-修改 `agent.py` 中的 `query` 变量：
-
-```python
-query = "你的搜索查询"
-```
-
-## 项目结构
-
-```
-GUIAgent/
-├── agent.py              # 主程序入口
-├── llm.py               # 大语言模型API调用
-├── searcher.py          # 学术平台搜索
-├── downloader.py        # PDF下载管理
-├── zotero_integration.py # Zotero集成模块
-├── requirements.txt     # 依赖包列表
-├── README.md           # 项目文档
-├── .zotero_config      # Zotero配置文件
-├── debug/              # 调试脚本文件夹
-│   ├── setup_zotero.py      # Zotero配置向导
-│   ├── get_user_id.py       # 获取Zotero用户ID
-│   ├── test_zotero.py       # Zotero集成测试
-│   ├── debug_zotero.py      # Zotero API调试
-│   ├── debug_create_collection.py # 创建文件夹调试
-│   ├── debug_add_item.py    # 添加论文调试
-│   └── debug_move_item.py   # 移动论文调试
-└── downloads/          # PDF下载目录
-```
-
-## 支持的学术平台
-
-- **arXiv**：计算机科学、数学、物理等预印本
-- **Google Scholar**：综合性学术搜索
-- **Semantic Scholar**：AI驱动的学术搜索
-- **PubMed**：生物医学文献
-
-## Zotero集成功能
-
-### 主要特性
-
-- **自动创建文件夹**：在Zotero中自动创建指定文件夹
-- **完整元数据**：保存论文标题、作者、摘要、发布日期等
-- **PDF链接**：自动添加PDF下载链接作为附件
-- **智能标签**：自动添加arXiv、来源、工具标签
-- **批量处理**：支持批量添加多篇论文
-
-### 使用流程
-
-1. 配置Zotero API Key和用户ID
-2. 运行程序并选择"保存到Zotero"
-3. 输入目标文件夹名称（可选）
-4. 程序自动将论文信息保存到Zotero
-
-## 调试工具
-
-`debug/` 文件夹包含各种调试脚本：
-
-- **setup_zotero.py**：Zotero配置向导
-- **get_user_id.py**：获取Zotero用户ID
-- **test_zotero.py**：测试Zotero集成功能
-- **debug_*.py**：各种API调试脚本
-
-如需调试Zotero集成问题，可以运行：
+#### 1. 学术论文搜索与保存
 ```bash
-python debug/test_zotero.py
+python agent.py "帮我找一些关于KV Cache优化的论文，并保存到我的Zotero中"
 ```
 
-## 错误处理
+#### 2. 网络资料整理
+```bash
+python agent.py "帮我上网查找资料，形成一份北京有趣citywalk路线的笔记"
+```
 
-- 网络连接问题：自动重试和代理设置
-- API调用失败：优雅降级到原始查询
-- 下载失败：跳过并继续处理其他文件
-- Zotero集成：详细的错误提示和回退机制
+#### 3. 技术研究
+```bash
+python agent.py "KV Cache的原理是什么？通过阅读相应的网页学习该领域的知识，系统地告诉我该领域的研究脉络和代表性论文"
+```
 
-## 注意事项
+## 📁 项目结构
 
-1. 确保网络连接正常
-2. 配置正确的API Key
-3. 下载目录需要写入权限
-4. 大量下载时注意磁盘空间
-5. Zotero集成需要有效的API Key和用户ID
+```
+LLMagent/
+├── agent.py                 # 主程序入口（LangChain集成）
+├── config_manager.py        # 配置管理器
+├── .config                  # 配置文件
+├── requirements.txt         # 依赖包列表
+├── README.md               # 项目文档
+├── tools/                  # 工具模块
+│   ├── search_web.py       # 网络搜索
+│   ├── search_scholar.py   # 学术搜索
+│   ├── search_arxiv.py     # arXiv搜索
+│   ├── text_from_url.py    # 网页内容提取
+│   ├── pdf_downloader.py   # PDF下载
+│   ├── pdf_reader.py       # PDF文本提取
+│   ├── zotero_integration.py # Zotero集成
+│   └── markdown_notes.py   # 笔记记录
+└── downloads/              # PDF下载目录
+```
 
-## 开发计划
+## 🔧 技术架构
 
-- [x] 支持更多学术平台
-- [x] 添加Zotero集成
-- [ ] 添加论文摘要分析
-- [ ] 实现批量搜索功能
-- [ ] 添加搜索历史记录
-- [ ] 支持自定义下载目录
-- [ ] 添加更多学术数据库支持 
+### LangChain集成
+- 使用LangChain的Agent框架
+- 支持结构化工具调用
+- 内置对话记忆功能
+- 最多10轮对话限制（可配置）
+
+### 工具系统
+- 基于LangChain的StructuredTool
+- 自动参数验证和类型检查
+- 错误处理和重试机制
+- 代理配置支持
+
+### 配置管理
+- 统一的配置管理器
+- 环境变量自动设置
+- 配置验证和状态检查
+- 多API支持（DeepSeek/OpenAI）
+
+## 🎨 特色功能
+
+### 智能工具路由
+- 自动选择合适的搜索工具
+- 智能参数填充
+- 结果去重和排序
+- 容错和降级处理
+
+### 文献管理自动化
+- 自动创建Zotero文件夹
+- 批量论文添加
+- 元数据自动填充
+- 智能标签生成
+
+### 研究笔记生成
+- 自动生成Markdown格式
+- 时间戳记录
+- 内容追加模式
+- 文件夹组织
+
+## ⚠️ 注意事项
+
+1. **网络配置**：确保网络连接正常，如需代理请配置PROXY_URL
+2. **API限制**：注意各API的调用频率限制
+3. **存储空间**：大量PDF下载时注意磁盘空间
+4. **权限设置**：确保下载目录有写入权限
+5. **Zotero同步**：Zotero操作需要有效的API Key和用户ID
+
+## 🔄 更新日志
+
+### v2.0.0
+- ✅ 集成LangChain框架
+- ✅ 支持多轮交互式对话
+- ✅ 新增多种工具功能
+- ✅ 改进配置管理系统
+- ✅ 优化错误处理机制
+
+### v1.0.0
+- ✅ 基础学术搜索功能
+- ✅ Zotero集成
+- ✅ PDF下载管理
+
+## 🤝 贡献指南
+
+欢迎提交Issue和Pull Request来改进项目！
+
+## 📄 许可证
+
+MIT License
+
+---
+
+**让AI助手成为您学术研究的得力助手！** 🎓 
