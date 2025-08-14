@@ -1,4 +1,5 @@
 /.ssh
 /results
+/downloads
 *.pyc
 .config
