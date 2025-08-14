@@ -2,4 +2,4 @@
 /results
 /downloads
 *.pyc
-*.config
+.config
