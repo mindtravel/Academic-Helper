@@ -144,7 +144,9 @@ def run_with_langchain(query: str) -> None:
             记录 Markdown 笔记：将内容追加/写入到指定笔记目录（参数：title, content, folder?, append?）
         '''),
         StructuredTool.from_function(_read_pdf, name="read_pdf", description='''
-            读取本地PDF并提取文本（参数：file_path, max_chars?, password?）
+            读取本地PDF文件并提取文本内容，用于分析PDF文档。返回提取的文本、页数等元数据。
+            参数：file_path（PDF文件路径，如"./downloads/paper.pdf"）, max_chars（最大字符数，默认8000）, password（密码，可选）
+            返回：{ok, text, meta:{pages}, error}
         '''),
     ]
 
@@ -195,7 +197,9 @@ if __name__ == "__main__":
     # q = "帮我找一些关于KV Cache层间优化的论文，并保存到我的Zotero中"
     # q = "帮我找一些关于KV Cache层间优化的论文，并下载pdf文件"
     # q = "帮我找一些关于KV Cache优化的网页介绍，将内容整理成一份markdown笔记"
-    q = "帮我上网查找资料，形成一份北京有趣citywalk路线的笔记"
+    # q = "帮我上网查找资料，形成一份北京有趣citywalk路线的笔记"
+    # q = "阅读attention is all you need的论文原文并总结其内容"
+    q = "我想去北京旅游，请帮我制定一个为期三天的旅游计划，并将其保存为markdown笔记"
     if len(sys.argv) > 1:
         q = " ".join(sys.argv[1:])
     # run(q)

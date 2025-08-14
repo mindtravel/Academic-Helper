@@ -6,7 +6,7 @@ import os
 from pypdf import PdfReader
 
 
-def read_pdf(file_path: str, max_chars: int = 8000, password: Optional[str] = None) -> Dict[str, str]:
+def read_pdf(file_path: str, max_chars: int = 80000, password: Optional[str] = None) -> Dict[str, str]:
     """读取本地 PDF，提取文本（前 max_chars 字符）。
 
     返回: { ok, meta:{pages}, text }

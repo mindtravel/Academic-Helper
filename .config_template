@@ -1,0 +1,28 @@
+# API配置文件
+# 学术智能Agent - API配置
+
+# ===== DeepSeek API配置 =====
+# 推荐使用，价格更便宜
+DEEPSEEK_API_KEY=
+
+# ===== OpenAI API配置 =====
+# 备选方案，价格较高
+OPENAI_API_KEY=
+
+# ===== Zotero API配置 =====
+# Zotero集成配置
+ZOTERO_API_KEY=
+ZOTERO_USER_ID=
+
+# ===== 其他配置 =====
+# 默认搜索查询
+DEFAULT_QUERY=搜索近五年强化学习的论文
+
+# 默认下载目录
+DEFAULT_DOWNLOAD_DIR=./downloads
+
+# 默认Zotero文件夹名称
+DEFAULT_ZOTERO_COLLECTION=学术智能Agent 
+
+# 网络代理（simple_crawler、LLM等将自动读取此项）
+PROXY_URL=
