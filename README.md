@@ -58,7 +58,7 @@ ZOTERO_API_KEY=your_zotero_api_key
 ZOTERO_USER_ID=your_zotero_user_id
 
 # 网络代理配置
-PROXY_URL=http://127.0.0.1:33210
+PROXY_URL=your_proxy_url
 
 # 默认配置
 DEFAULT_QUERY=搜索近五年强化学习的论文
@@ -184,19 +184,6 @@ LLMagent/
 4. **权限设置**：确保下载目录有写入权限
 5. **Zotero同步**：Zotero操作需要有效的API Key和用户ID
 
-## 🔄 更新日志
-
-### v2.0.0
-- ✅ 集成LangChain框架
-- ✅ 支持多轮交互式对话
-- ✅ 新增多种工具功能
-- ✅ 改进配置管理系统
-- ✅ 优化错误处理机制
-
-### v1.0.0
-- ✅ 基础学术搜索功能
-- ✅ Zotero集成
-- ✅ PDF下载管理
 
 ## 🤝 贡献指南
 
@@ -207,5 +194,6 @@ LLMagent/
 MIT License
 
 ---
+
 
 **让AI助手成为您学术研究的得力助手！** 🎓 
