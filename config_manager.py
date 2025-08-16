@@ -63,7 +63,7 @@ class ConfigManager:
     
     def get_default_download_dir(self) -> str:
         """获取默认下载目录"""
-        return self.get("DEFAULT_DOWNLOAD_DIR", "./downloads")
+        return self.get("DEFAULT_DOWNLOAD_DIR", "./result/downloads")
     
     def get_default_zotero_collection(self) -> str:
         """获取默认Zotero文件夹名称"""

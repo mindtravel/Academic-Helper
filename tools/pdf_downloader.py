@@ -9,26 +9,29 @@ def download_pdfs(papers: List[Dict], download_dir: str) -> Dict[str, int]:
     """批量下载论文 PDF 到指定目录。
 
     参数 papers: 每项需包含 {title, pdf_url}
-    返回: {"success": 成功数, "failed": 失败数}
+    返回: {"all_success": 是否全部成功, "failed": 失败原因}
     """
     os.makedirs(download_dir, exist_ok=True)
-    success = 0
-    failed = 0
+    all_success = True
+    failed = {}
     for paper in papers:
         pdf_url = paper.get("pdf_url")
         title = paper.get("title", "untitled")
+        
         if not pdf_url:
-            print(f"未找到PDF链接: {title}")
-            failed += 1
+            failed[title] = {"PDF url not found"}
             continue
 
-        clean_title = re.sub(r"[\n\r\t]", " ", title)
-        clean_title = re.sub(r"[<>:\"/\\|?*]", "_", clean_title)
-        clean_title = re.sub(r"\s+", " ", clean_title).strip()
-        filename = (clean_title[:80] or "untitled") + ".pdf"
+        def clean_pdf_title(raw_title):
+            rstr = r"[\/\\\:\*\?\"\<\>\|]"  # 替换Windows文件名非法字符为空格，非法字符'/ \ : * ? " < > |'
+            cleaned = re.sub(rstr, " ", raw_title) # 移除首尾空格和多余空格
+            cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+            return cleaned[:80] if cleaned else "untitled" # 限制文件名长度（Windows最大255字符，这里设为80）
+
+        clean_title = clean_pdf_title(title)
+        filename = clean_title + ".pdf"
         filepath = os.path.join(download_dir, filename)
 
-        print(f"下载: {title}")
         try:
             with requests.get(pdf_url, stream=True, timeout=30, proxies={}) as r:
                 r.raise_for_status()
@@ -36,10 +39,9 @@ def download_pdfs(papers: List[Dict], download_dir: str) -> Dict[str, int]:
                     for chunk in tqdm(r.iter_content(chunk_size=8192), desc=filename, unit='KB'):
                         if chunk:
                             f.write(chunk)
-            print(f"已保存到: {filepath}\n")
-            success += 1
         except Exception as e:
-            print(f"下载失败: {e}")
-            failed += 1
-    return {"success": success, "failed": failed}
+            failed[title] = {"download failed"}
+
+            
+    return {"all_success": all_success, "failed": failed}
 

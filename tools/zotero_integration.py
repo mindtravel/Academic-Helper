@@ -55,7 +55,7 @@ class ZoteroIntegration:
             result = response.json()
             print(f"成功创建文件夹: {name}")
             
-            # 修复：正确解析Zotero API返回结构
+            # 解析Zotero API返回结构
             if isinstance(result, dict):
                 # 检查success字段
                 if "success" in result and "0" in result["success"]:

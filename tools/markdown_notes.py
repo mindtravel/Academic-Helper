@@ -27,12 +27,12 @@ def write_markdown_note(
 
     - title: 笔记标题（用于文件名与文档标题）
     - content: 笔记正文（Markdown）
-    - folder: 目标文件夹，默认从 .api_config 的 NOTES_DIR 或 ./notes
+    - folder: 目标文件夹，默认从 .api_config 的 NOTES_DIR 或 ./result/notes
     - append: 若存在同名文件是否追加；否则覆盖写入
     返回: { ok, path }
     """
     load_api_config()
-    base_dir = folder or get_config("NOTES_DIR", "./notes")
+    base_dir = folder or get_config("NOTES_DIR", "./result/notes")
     os.makedirs(base_dir, exist_ok=True)
 
     filename = f"{_slugify(title)}.md"
@@ -52,5 +52,5 @@ def write_markdown_note(
             f.write(f"> Updated: {now}\n\n")
         f.write(body)
 
-    return {"ok": "true", "path": path}
+    return {"ok": True, "path": path}
 

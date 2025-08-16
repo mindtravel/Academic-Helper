@@ -12,7 +12,7 @@ def read_pdf(file_path: str, max_chars: int = 80000, password: Optional[str] = N
     返回: { ok, meta:{pages}, text }
     """
     if not os.path.exists(file_path):
-        return {"ok": "false", "error": "file_not_found", "path": file_path}
+        return {"ok": False, "error": "file_not_found", "path": file_path}
 
     try:
         reader = PdfReader(file_path)
@@ -20,7 +20,7 @@ def read_pdf(file_path: str, max_chars: int = 80000, password: Optional[str] = N
             try:
                 reader.decrypt(password or "")
             except Exception:
-                return {"ok": "false", "error": "decrypt_failed"}
+                return {"ok": False, "error": "decrypt_failed"}
 
         texts: list[str] = []
         for page in reader.pages:
@@ -30,10 +30,10 @@ def read_pdf(file_path: str, max_chars: int = 80000, password: Optional[str] = N
                 continue
         full_text = "\n".join(texts).strip()
         return {
-            "ok": "true",
+            "ok": True,
             "meta": {"pages": len(reader.pages)},
             "text": full_text[: max(0, int(max_chars))],
         }
     except Exception as e:
-        return {"ok": "false", "error": str(e)}
+        return {"ok": False, "error": str(e)}
 
