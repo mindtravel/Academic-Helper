@@ -20,16 +20,8 @@ import openai
 from config_manager import load_api_config, get_config
 from user import setting
 
-from tools.tools_definitions import (
-    search_web_min,
-    text_from_url_min,
-    search_arxiv_min,
-    search_scholar_min,
-    zotero_router,
-    pdf_downloader,
-    markdown_note_min,
-    read_pdf_min,
-)
+import tools.tools_definitions
+from tools.tools_definitions import tools_api
 
 from langchain_openai import ChatOpenAI
 from langchain.tools import StructuredTool
@@ -68,41 +60,6 @@ def run_with_langchain(query: str) -> None:
 
     llm = ChatOpenAI(model="deepseek-chat", temperature=0)
 
-    tools = [
-        StructuredTool.from_function(search_web_min, name="search_web", description='''
-            使用 DuckDuckGo 实时检索，返回前N条网页链接。"
-        '''),
-        StructuredTool.from_function(text_from_url_min, name="text_from_url", description='''
-            抓取URL网页并返回标题与正文文本（最多max_chars字符）。
-        '''),
-        StructuredTool.from_function(search_scholar_min, name="search_scholar", description='''
-            Google Scholar & Web PDF 搜索。你需要提供关键词，尽量返回包含 PDF 链接的条目。
-            在这些有PDF链接的条目中，尽量选择论文最终发表的会议/期刊对应的文献库，而不是arxiv等预印本。
-        '''),
-        StructuredTool.from_function(search_arxiv_min, name="search_arxiv", description='''
-            arxiv搜索接口。如果你需要寻找一篇论文的URL和pdf等，但是其他正式的途径中都没有搜到论文的url，可以调用这个工具来搜索arxiv上的相关论文。
-            你需要提供关键词，返回的结果会包含标题、作者、出版日期、摘要和PDF链接等信息。
-        '''),
-        StructuredTool.from_function(zotero_router, name="zotero", description='''
-            Zotero 聚合工具，通过 action 路由不同操作
-            (create_collection：创建新文件夹，需要根据任务名称生成文件夹的名称
-            /add_item：添加论文到Zotero的特定文件夹，需要提供论文的标题、作者、出版日期、摘要和PDF链接等信息
-            /move_item：移动论文到Zotero的特定文件夹
-            /list_collections：
-            )
-        '''),
-        StructuredTool.from_function(pdf_downloader, name="pdf_downloader", description='''
-            批量下载论文PDF到指定目录（参数：papers[{title,pdf_url}], folder）
-        '''),
-        StructuredTool.from_function(markdown_note_min, name="markdown_note", description='''
-            记录 Markdown 笔记，在指定笔记目录中添加或删除内容（参数：title, content, folder?, append?）
-        '''),
-        StructuredTool.from_function(read_pdf_min, name="read_pdf_min", description='''
-            读取本地PDF文件并提取文本内容，用于分析PDF文档。返回提取的文本、页数等元数据。
-            参数：file_path（PDF文件路径，如"./downloads/paper.pdf"）, max_chars（最大字符数，默认8000）, password（密码，可选）
-            返回：{ok, text, meta:{pages}, error}
-        '''),
-    ]
 
     system_text = (
         "当你完成任务时，你需要最大限度地调用给定的工具吸收互联网上的信息作为严格的佐证，并且细致地辨别不合理的信息。"
@@ -115,17 +72,13 @@ def run_with_langchain(query: str) -> None:
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ])
 
-    agent = create_tool_calling_agent(llm, tools, prompt)
+    agent = create_tool_calling_agent(llm, tools_api, prompt)
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     # executor = AgentExecutor(agent=agent, tools=tools, memory=memory, max_iterations=10, verbose=True) # 限制最大对话轮数
-    executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True) # 不限制
+    executor = AgentExecutor(agent=agent, tools=tools_api, memory=memory, verbose=True) # 不限制
 
     # 设置全局任务文件夹
-    task_folder = make_folder(query)
-    
-    # 更新 tools_definitions 中的全局变量
-    import tools.tools_definitions
-    tools.tools_definitions.task_folder = task_folder
+    tools.tools_definitions.task_folder = make_folder(query)
     
     # 首次运行，输入是query    
     output = executor.invoke({"input": query})

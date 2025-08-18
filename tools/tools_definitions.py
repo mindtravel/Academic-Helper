@@ -8,26 +8,44 @@ from .markdown_notes import write_markdown_note
 from .pdf_reader import read_pdf
 
 from config_manager import get_config
+from langchain.tools import StructuredTool
+from langchain_core.tools import tool
 
 # 将现有函数包装为 LangChain 工具（只暴露常用参数，避免模型误填冗余参数）
 
 task_folder = ""
-def search_web_min(query: str, max_results: int = 10) -> list[str]:
-    """网页搜索工具"""
+
+@tool
+def search_web(query: str, max_results: int = 10) -> list[str]:
+    """
+    使用 DuckDuckGo 实时检索，返回前N条网页链接 
+    """
     return search_web(query=query, max_results=max_results)
 
-def text_from_url_min(url: str, timeout: int = 15, max_chars: int = 4000) -> dict:
-    """网页文本提取工具"""
+@tool
+def text_from_url(url: str, timeout: int = 15, max_chars: int = 4000) -> dict:
+    """
+    抓取URL网页并返回标题与正文文本（最多max_chars字符）
+    """
     return text_from_url(url=url, timeout=timeout, max_chars=max_chars)
 
-def search_arxiv_min(keywords: str, max_results: int = 10, year_from: int | None = None) -> list[dict]:
-    """arxiv搜索工具"""
+@tool
+def search_arxiv(keywords: str, max_results: int = 10, year_from: int | None = None) -> list[dict]:
+    """
+    arxiv搜索接口。如果你需要寻找一篇论文的URL和pdf等，但是其他正式的途径中都没有搜到论文的url，可以调用这个工具来搜索arxiv上的相关论文。
+    你需要提供关键词，返回的结果会包含标题、作者、出版日期、摘要和PDF链接等信息。
+    """
     return search_arxiv(keywords=keywords, max_results=max_results, year_from=year_from)
 
-def search_scholar_min(keywords: str, max_results: int = 10) -> list[dict]:
-    """谷歌学术搜索工具"""
+@tool
+def search_scholar(keywords: str, max_results: int = 10) -> list[dict]:
+    '''
+    Google Scholar & Web PDF 搜索。你需要提供关键词，尽量返回包含 PDF 链接的条目
+    在这些有PDF链接的条目中，尽量选择论文最终发表的会议/期刊对应的文献库，而不是arxiv等预印本。
+    '''
     return search_scholar_pdfs(keywords=keywords, max_results=max_results)
 
+@tool
 def zotero_router(
     action: str,
     collection_name: str | None = None,
@@ -37,7 +55,14 @@ def zotero_router(
     paper: dict | None = None,
     papers: list[dict] | None = None,
 ) -> dict:
-    """zotero工具路由"""
+    '''
+    Zotero 聚合工具路由，通过 action 路由不同操作
+    (create_collection：创建新文件夹，需要根据任务名称生成文件夹的名称
+    /add_item：添加论文到Zotero的特定文件夹，需要提供论文的标题、作者、出版日期、摘要和PDF链接等信息
+    /move_item：移动论文到Zotero的特定文件夹
+    /list_collections：
+    )
+    '''
     # 初始化zotero API
     api_key = get_config("ZOTERO_API_KEY")
     user_id = get_config("ZOTERO_USER_ID")
@@ -82,21 +107,43 @@ def zotero_router(
         return {"ok": True, "collections": z.get_collections()}
     return {"ok": False, "error": "unknown_action"}
 
+@tool
 def pdf_downloader(papers: list[dict], folder: str = "downloads") -> dict:
-    """
-    pdf 下载工具
-    folder: 下载目录，默认使用任务文件夹
-    """    
+    '''
+    批量下载论文PDF到指定目录
+    
+    Args:
+        papers: 需要下载的论文的列表，内容为[{title,pdf_url}]
+        folder: 下载目录，默认使用任务文件夹
+    '''
 
     return download_pdfs(papers, f"{task_folder}/{folder}")
 
-def markdown_note_min(title: str, content: str, folder: str = "reports", append: bool = True) -> dict:
-    """
-    笔记记录工具
-    folder: 笔记文件夹，默认使用任务文件夹
-    """
+@tool
+def markdown_note(title: str, content: str, folder: str = "reports", append: bool = True) -> dict:
+    '''
+    记录 Markdown 笔记，在指定笔记目录中添加或删除内容
+    
+    Args:
+        title: 笔记的标题
+        content: 笔记的内容
+        folder: （可选）保存笔记的文件夹
+        append: （可选）是否以追加方式记录笔记
+    '''
     return write_markdown_note(title=title, content=content, folder=f"{task_folder}/{folder}", append=append)
 
-def read_pdf_min(file_path: str, max_chars: int = 8000, password: str | None = None) -> dict:
+@tool
+def read_pdf(file_path: str, max_chars: int = 8000, password: str | None = None) -> dict:
     """pdf阅读工具"""
     return read_pdf(file_path=file_path, max_chars=max_chars, password=password)
+
+tools_api = [
+    search_web,
+    text_from_url,
+    search_scholar,
+    search_arxiv,
+    zotero_router,
+    pdf_downloader,
+    markdown_note,
+    read_pdf
+]
