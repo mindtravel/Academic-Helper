@@ -25,12 +25,17 @@ def write_markdown_note(
 ) -> Dict[str, str]:
     """将内容以 Markdown 形式记录到本地文件。
 
-    - title: 笔记标题（用于文件名与文档标题）
-    - content: 笔记正文（Markdown）
-    - folder: 目标文件夹，默认从 .api_config 的 NOTES_DIR 或 ./result/notes
-    - append: 若存在同名文件是否追加；否则覆盖写入
-    返回: { ok, path }
+    Args:
+        title: 笔记标题（用于文件名与文档标题）
+        content: 笔记正文（Markdown）
+        folder: 目标文件夹，默认从 .api_config 的 NOTES_DIR 或 ./result/notes
+        append: 若存在同名文件是否追加；否则覆盖写入
+    
+    Return:
+    { ok, path }
     """
+    
+    
     load_api_config()
     base_dir = folder or get_config("NOTES_DIR", "./result/notes")
     os.makedirs(base_dir, exist_ok=True)
